@@ -1,0 +1,1367 @@
+/*
+This is an RPG. This is kind of based off of pokemon and the charactes of pokemon where there are options that you can
+choose from such as attacking, using an item, etc. There are a total of 5 options in this game, but there is no running
+away so you have to be able to beat them or you get beat. You have 5 total pokemons and the opponent has 5 pokemons that
+they have and they are the same each time you play the game, and they get increasingly harder and harder as you beat
+each of the pokemons. You will be able to heal youself, you will be able to increase your mana, and many other options.
+There are many features that I attempted to include in this project as I have tried to include a health inventory and
+a item inventory where the health inventory has all the possible ways to increase your health such as a health pot and
+the item inventory has all the possible ways to increase your mana value such as the mana pot. I have also tried to implement
+a critical hit or a special attack move where there is a 1/10 chance where you can hit it and completely destroy the oponent, but
+there is a great chance that you may not hit it so you can either take the risk, or you can use a regular attack, but it
+is all up to the player and if you do not get the critical hit, you will be punished by having some mana points taken away
+from the player. 
+*/
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+class Hero{
+	public:
+		// creation of all public variables for necessary uses
+		int hp;
+		int mp;
+		int xp;
+		int level;
+		// inventory space arrays for use for the pokemons
+		string healthInventory[5] = {"Health Pot", "Health Gel", "Health Pot", "Health Gel", "Health Injection"};
+		string itemInventory[5] = {"Mana Pot", "Mana Powder", "Mana Powder", "Mana Injection", "Mana Injection"};
+		
+		int highdef;
+		int lowdef;
+		
+		int highdmg;
+		int lowdmg;
+		int critChance;
+
+		string name;
+		// constructor
+		Hero(){
+		}
+		// constructor
+		Hero(string name, int hp, int mp, int xp, int level){
+			this->name = name;
+			this->hp = hp;
+			this->mp = mp;
+			this->xp = xp;
+			this->level = level;
+		}
+		// function to print out the stats of the pokemons
+		void statsprint(){
+			cout << "Name: " << name <<endl;
+			cout << "Hp: " << hp <<endl;
+			cout << "Mp: " << mp <<endl;
+			cout << "Xp: " << xp <<endl;
+			cout << "Level: " << level <<endl;
+			cout <<endl;
+		}
+		
+		// Option 1 - Hero
+		// attacks the opposing player
+		int attackDmg(){
+			highdmg = level * 10;
+			lowdmg = level * 5;
+			
+			int randint = rand() % (highdmg - lowdmg + 1) + lowdmg;
+			return randint;
+		}
+		// deflects any oncoming damage, but player will most likely still take damage
+		int defend(int dmgtaken){
+			highdef = level * 5;
+			lowdef = level * 3;
+			
+			int randint = rand() % (highdef - lowdef + 1) + lowdef;
+			return dmgtaken - randint;
+		}
+		
+		//Option 3 - Hero
+		// access inventory space for use of health potions
+		void usehealthitem(){
+			// Health Pot(+20), Health Gel(+10), Health Injection(+50)
+			int chosenitem;
+			
+			cout << "Health Pot(+20), Health Gel(+10), Health Injection(+50)" << endl;
+			cout << "Inventory: ";
+			for (int i=0; i<5; i++){
+				cout << healthInventory[i] << ", ";
+			}
+			cout << endl << "Pick an item to use in slot (1-5): ";
+			cin >> chosenitem;
+			
+			if (healthInventory[chosenitem-1] != "Empty"){
+				string useitem = healthInventory[chosenitem-1];
+				if (useitem == "Health Pot"){
+					hp+=20;
+				}
+				if (useitem == "Health Gel"){
+					hp+=10;
+				}
+				if (useitem == "Health Injection"){
+					hp+=50;
+				}
+				healthInventory[chosenitem-1] = "Empty";
+				cout << "You used your " << useitem <<endl;
+			} else{
+				cout << "This slot is empty" <<endl;
+			}
+		}
+		
+		// Option 5 - Hero
+		// function to access inventory to use mana potions to increase mana
+		void usemanaitem(){
+			// Mana Pot(+20), Mana Powder(+10), Mana Injection(+50)
+			int chosenitem;
+			
+			cout << "Mana Pot(+50), Mana Powder(+30), Mana Injection(+100)" << endl;
+			cout << "Inventory: ";
+			for (int i=0; i<5; i++){
+				cout << itemInventory[i] << ", ";
+			}
+			cout << endl << "Pick an item to use in slot (1-5): ";
+			cin >> chosenitem;
+			
+			if (itemInventory[chosenitem-1] != "Empty"){
+				string useitem = itemInventory[chosenitem-1];
+				if (useitem == "Mana Pot"){
+					mp+=50;
+				}
+				if (useitem == "Mana Powder"){
+					mp+=30;
+				}
+				if (useitem == "Mana Injection"){
+					mp+=100;
+				}
+				itemInventory[chosenitem-1] = "Empty";
+				cout << "You used your " << useitem <<endl;
+			} else{
+				cout << "This slot is empty" <<endl;
+			}
+		}
+		
+		//Option 4 - Hero
+		// function for a critical or a special attack where this is chance based specifically 1/10 times
+		bool specialattackchance(){
+			if (mp <= 0){
+				cout << "You have no mana left..." <<endl;
+				return false;
+			}
+			mp -= 10;
+			int randint = rand() % (10) + 1;
+			if (randint == 1){
+				return true;
+			} else{
+				cout << "Your critical failed! You lost an additional 5 mp!";
+				mp -= 5;
+				return false;
+			}
+		}
+		// amaount the critical does
+		int specialattack(){
+			cout << "CRITICAL Hit!";
+			return 30*level;
+		}
+};
+
+// Option 2 - Hero
+// function that changes the pokemon that is currently in battle
+int changePoke(string currentpoke, string pokeInventory[5]){
+	int pokechange;
+	cout << "You currently have " << currentpoke << " equipped" <<endl;
+	cout << "Your Pokemon Inventory: ";
+	for (int i=0; i<5; i++){
+		cout << pokeInventory[i] << ", ";
+	}
+	cout <<endl;
+	cout << "Who would you like to switch to (1-5)? ";
+	cin >> pokechange;
+	if (pokeInventory[pokechange-1] != "Knocked Out"){
+		return pokechange;
+		cout << "You switched Pokemons to " << pokeInventory[pokechange-1] << "!";
+	} else{
+		cout << "This pokemon is knocked out!";
+	}
+}
+
+int main(){
+	srand(time(0));
+	
+	//string name, int hp, int mp, int xp, int level/
+	//Protagonist pokemons
+	cout << "Your Pokemons: " <<endl <<endl;
+	// creation of each protagonist pokemon
+	Hero pok1("Pikachu-1", 200, 200, 7500, 3); //200
+	pok1.statsprint();
+	
+	Hero pok2("Charizard-2", 550, 300, 2500, 1); //550
+	pok2.statsprint();
+	
+	Hero pok3("Squirtle-3", 500, 200, 10000, 1); //500
+	pok3.statsprint();
+	
+	Hero pok4("Bulbasaur-4", 450, 200, 5500, 2); //450
+	pok4.statsprint();
+	
+	Hero pok5("Raichu-5", 450, 200, 3500, 2); //450
+	pok5.statsprint();
+	
+	//Antagonist pokemons
+	Hero op1("Meowth", 100, 100, 0, 1); // 1
+	Hero op2("Magikarp", 200, 100, 0, 2); // 2
+	Hero op3("Wobbuffet", 250, 100, 0, 3); // 3
+	Hero op4("Dragonite", 300, 100, 0, 3); // 3
+	Hero op5("Arbok", 500, 100, 0, 5); // 5
+	// all pokemons in one array
+	string pokeInventory[5] = {pok1.name, pok2.name, pok3.name, pok4.name, pok5.name};
+	int currentpoke;
+	// instructions for the player
+	cout << "Choose a pokemon to start with(1-5): ";
+	cin >> currentpoke;
+	cout << "Your starting pokemon is " << pokeInventory[currentpoke-1] <<endl <<endl;
+	
+	// Match 1
+	cout << "Match 1: " << pokeInventory[currentpoke-1] << " vs " << op1.name <<endl <<endl;
+	int match1choice;
+	// bool to end the game if all pokemons are dead
+	bool gameEnd = false;
+	// match 1 with all options for the player comments are the same for all matches
+	while (op1.hp > 0 && gameEnd == false){
+		// displays the inventory available for the player so they do not forget
+		cout << "Your Pokemon Inventory: ";
+		for (int i=0; i<5; i++){
+			cout << pokeInventory[i] << ", ";
+		}
+		cout <<endl <<endl;
+		// in case the pokemon gets knocked out the player can immediately change pokemons
+		
+		if (pok1.hp == 1 && pok2.hp == 2 && pok3.hp == 3 && pok4.hp == 4 && pok5.hp <= 0){
+				pok1.hp = 1;
+				pok2.hp = 2;
+				pok3.hp = 3;
+				pok4.hp = 4;
+				pok5.hp = 5;
+				gameEnd = true;
+				cout << "All your Pokemons have been knocked out, you have lost this battle..." <<endl;
+		}
+		if (pok1.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok1.hp = 1;
+		}
+		if (pok2.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok2.hp = 2;
+		}
+		if (pok3.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok3.hp = 3;
+		}
+		if (pok4.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok4.hp = 4;
+		}
+		if (pok5.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok5.hp = 5;
+		}
+		// displays the stats each turn to make sure the player is updated on info
+		if (gameEnd == false){
+			if (currentpoke == 1){
+				pok1.statsprint();
+			} else if (currentpoke == 2){
+				pok2.statsprint();
+			} else if (currentpoke == 3){
+				pok3.statsprint();
+			} else if (currentpoke == 4){
+				pok4.statsprint();
+			} else if (currentpoke == 5){
+				pok5.statsprint();
+			}
+		}
+		// health display of the opposing side
+		cout << op1.name << " Health: " << op1.hp <<endl;
+		// displaying the options that the player is able to choose from
+		if (gameEnd == false){
+			cout << "Choose your action: 1-Attack | 2-Change Pokemon | 3-Use Health Item | 4-Special Attack | 5-Use Mana Item --> ";
+			cin >> match1choice;
+		}
+		cout <<endl;
+		// each of the different thigns that could happen by choosing option 1 of attacking simply
+		if (match1choice == 1){
+			if (currentpoke == 1){
+				op1.hp = op1.hp - pok1.attackDmg();
+				
+				cout << "Meowth takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok1.hp = pok1.hp - op1.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				op1.hp = op1.hp - pok2.attackDmg();
+				
+				cout << "Meowth takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok2.hp = pok2.hp - op1.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				op1.hp = op1.hp - pok3.attackDmg();
+				
+				cout << "Meowth takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok3.hp = pok3.hp - op1.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				op1.hp = op1.hp - pok4.attackDmg();
+				
+				cout << "Meowth takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok4.hp = pok4.hp - op1.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				op1.hp = op1.hp - pok5.attackDmg();
+				
+				cout << "Meowth takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok5.hp = pok5.hp - op1.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match1choice == 2){ // options that could happen from choosing option 2
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+		} else if (match1choice == 3){ // what could and will happen if you choose option 3
+			if (currentpoke == 1){
+				pok1.usehealthitem();
+			}
+			if (currentpoke == 2){
+				pok2.usehealthitem();
+			}
+			if (currentpoke == 3){
+				pok3.usehealthitem();
+			}
+			if (currentpoke == 4){
+				pok4.usehealthitem();
+			}
+			if (currentpoke == 5){
+				pok5.usehealthitem();
+			}
+		} else if (match1choice == 4){ // what would or could or will happen if you chosoe option 4
+			if (currentpoke == 1){
+				if (pok1.specialattackchance() == true){
+					op1.hp = op1.hp - pok1.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << "Meowth strikes a regular attack!" <<endl;
+				pok1.hp = pok1.hp - op1.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				if (pok2.specialattackchance() == true){
+					op1.hp = op1.hp - pok2.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << "Meowth strikes a regular attack!" <<endl;
+				pok2.hp = pok2.hp - op1.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				if (pok3.specialattackchance() == true){
+					op1.hp = op1.hp - pok3.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << "Meowth strikes a regular attack!" <<endl;
+				pok3.hp = pok3.hp - op1.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				if (pok4.specialattackchance() == true){
+					op1.hp = op1.hp - pok4.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << "Meowth strikes a regular attack!" <<endl;
+				pok4.hp = pok4.hp - op1.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				if (pok5.specialattackchance() == true){
+					op1.hp = op1.hp - pok5.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << "Meowth strikes a regular attack!" <<endl;
+				pok5.hp = pok5.hp - op1.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match1choice == 5){ // what will or could happen if you choose option 5
+			if (currentpoke == 1){
+				pok1.usemanaitem();
+			}
+			if (currentpoke == 2){
+				pok2.usemanaitem();
+			}
+			if (currentpoke == 3){
+				pok3.usemanaitem();
+			}
+			if (currentpoke == 4){
+				pok4.usemanaitem();
+			}
+			if (currentpoke == 5){
+				pok5.usemanaitem();
+			}
+		}
+	}
+	
+	if (gameEnd == false){
+		// congrats to the player if they make it this far and they move on by the game congratulating them and starting next match with storyline
+		cout <<endl;
+		cout << "Congratulations! You defeated " << op1.name << ". The gym trainer brings out " << op2.name <<endl <<endl;
+		// match 2
+		cout << "Match 2: " << pokeInventory[currentpoke-1] << " vs " << op2.name <<endl <<endl;
+	}
+	
+	int match2choice;
+	// match 2 same comments as match 1
+	while (op2.hp > 0 && gameEnd == false){
+		cout << "Your Pokemon Inventory: ";
+		for (int i=0; i<5; i++){
+			cout << pokeInventory[i] << ", ";
+		}
+		cout <<endl <<endl;
+		
+		if (pok1.hp == 1 && pok2.hp == 2 && pok3.hp == 3 && pok4.hp == 4 && pok5.hp <= 0){
+				pok1.hp = 1;
+				pok2.hp = 2;
+				pok3.hp = 3;
+				pok4.hp = 4;
+				pok5.hp = 5;
+				gameEnd = true;
+				cout << "All your Pokemons have been knocked out, you have lost this battle..." <<endl;
+		}
+		if (pok1.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok1.hp = 1;
+		}
+		if (pok2.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok2.hp = 2;
+		}
+		if (pok3.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok3.hp = 3;
+		}
+		if (pok4.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok4.hp = 4;
+		}
+		if (pok5.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok5.hp = 5;
+		}
+		
+		if (gameEnd == false){
+			if (currentpoke == 1){
+				pok1.statsprint();
+			} else if (currentpoke == 2){
+				pok2.statsprint();
+			} else if (currentpoke == 3){
+				pok3.statsprint();
+			} else if (currentpoke == 4){
+				pok4.statsprint();
+			} else if (currentpoke == 5){
+				pok5.statsprint();
+			}
+		}
+		
+		cout << op2.name << " Health: " << op2.hp <<endl;
+		
+		if (gameEnd == false){
+			cout << "Choose your action: 1-Attack | 2-Change Pokemon | 3-Use Health Item | 4-Special Attack | 5-Use Mana Item --> ";
+			cin >> match2choice;
+		}
+		cout <<endl;
+		
+		if (match2choice == 1){
+			if (currentpoke == 1){
+				op2.hp = op2.hp - pok1.attackDmg();
+				
+				cout << op2.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok1.hp = pok1.hp - op2.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				op2.hp = op2.hp - pok2.attackDmg();
+				
+				cout << op2.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok2.hp = pok2.hp - op2.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				op2.hp = op2.hp - pok3.attackDmg();
+				
+				cout << op2.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok3.hp = pok3.hp - op2.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				op2.hp = op2.hp - pok4.attackDmg();
+				
+				cout << op2.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok4.hp = pok4.hp - op2.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				op2.hp = op2.hp - pok5.attackDmg();
+				
+				cout << op2.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok5.hp = pok5.hp - op2.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match2choice == 2){
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+		} else if (match2choice == 3){
+			if (currentpoke == 1){
+				pok1.usehealthitem();
+			}
+			if (currentpoke == 2){
+				pok2.usehealthitem();
+			}
+			if (currentpoke == 3){
+				pok3.usehealthitem();
+			}
+			if (currentpoke == 4){
+				pok4.usehealthitem();
+			}
+			if (currentpoke == 5){
+				pok5.usehealthitem();
+			}
+		} else if (match2choice == 4){
+			if (currentpoke == 1){
+				if (pok1.specialattackchance() == true){
+					op2.hp = op2.hp - pok1.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op2.name << " strikes a regular attack!" <<endl;
+				pok1.hp = pok1.hp - op2.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				if (pok2.specialattackchance() == true){
+					op2.hp = op2.hp - pok2.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op2.name << " strikes a regular attack!" <<endl;
+				pok2.hp = pok2.hp - op2.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				if (pok3.specialattackchance() == true){
+					op2.hp = op2.hp - pok3.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op2.name << " strikes a regular attack!" <<endl;
+				pok3.hp = pok3.hp - op2.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				if (pok4.specialattackchance() == true){
+					op2.hp = op2.hp - pok4.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op2.name << " strikes a regular attack!" <<endl;
+				pok4.hp = pok4.hp - op2.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				if (pok5.specialattackchance() == true){
+					op2.hp = op2.hp - pok5.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op2.name << " strikes a regular attack!" <<endl;
+				pok5.hp = pok5.hp - op2.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match2choice == 5){
+			if (currentpoke == 1){
+				pok1.usemanaitem();
+			}
+			if (currentpoke == 2){
+				pok2.usemanaitem();
+			}
+			if (currentpoke == 3){
+				pok3.usemanaitem();
+			}
+			if (currentpoke == 4){
+				pok4.usemanaitem();
+			}
+			if (currentpoke == 5){
+				pok5.usemanaitem();
+			}
+		}
+	}
+	
+	if (gameEnd == false){
+		cout <<endl;
+		cout << op2.name << " falls on the floor you start celebrating until... The gym trainer opens the gate and lets out " << op3.name <<endl <<endl;
+		
+		cout << "Match 3: " << pokeInventory[currentpoke-1] << " vs " << op3.name <<endl <<endl;
+	}
+	
+	int match3choice;
+	// match 3 same comments as match 1
+	while (op3.hp > 0 && gameEnd == false){
+		cout << "Your Pokemon Inventory: ";
+		for (int i=0; i<5; i++){
+			cout << pokeInventory[i] << ", ";
+		}
+		cout <<endl <<endl;
+		
+		if (pok1.hp == 1 && pok2.hp == 2 && pok3.hp == 3 && pok4.hp == 4 && pok5.hp <= 0){
+				pok1.hp = 1;
+				pok2.hp = 2;
+				pok3.hp = 3;
+				pok4.hp = 4;
+				pok5.hp = 5;
+				gameEnd = true;
+				cout << "All your Pokemons have been knocked out, you have lost this battle..." <<endl;
+		}
+		if (pok1.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok1.hp = 1;
+		}
+		if (pok2.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok2.hp = 2;
+		}
+		if (pok3.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok3.hp = 3;
+		}
+		if (pok4.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok4.hp = 4;
+		}
+		if (pok5.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok5.hp = 5;
+		}
+		
+		if (gameEnd == false){
+			if (currentpoke == 1){
+				pok1.statsprint();
+			} else if (currentpoke == 2){
+				pok2.statsprint();
+			} else if (currentpoke == 3){
+				pok3.statsprint();
+			} else if (currentpoke == 4){
+				pok4.statsprint();
+			} else if (currentpoke == 5){
+				pok5.statsprint();
+			}
+		}
+		
+		cout << op3.name << " Health: " << op3.hp <<endl;
+		
+		if (gameEnd == false){
+			cout << "Choose your action: 1-Attack | 2-Change Pokemon | 3-Use Health Item | 4-Special Attack | 5-Use Mana Item --> ";
+			cin >> match3choice;
+		}
+		cout <<endl;
+		
+		if (match3choice == 1){
+			if (currentpoke == 1){
+				op3.hp = op3.hp - pok1.attackDmg();
+				
+				cout << op3.name << " a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok1.hp = pok1.hp - op3.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				op3.hp = op3.hp - pok2.attackDmg();
+				
+				cout << op3.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok2.hp = pok2.hp - op3.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				op3.hp = op3.hp - pok3.attackDmg();
+				
+				cout << op3.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok3.hp = pok3.hp - op3.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				op3.hp = op3.hp - pok4.attackDmg();
+				
+				cout << op3.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok4.hp = pok4.hp - op3.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				op3.hp = op3.hp - pok5.attackDmg();
+				
+				cout << op3.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok5.hp = pok5.hp - op3.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match3choice == 2){
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+		} else if (match3choice == 3){
+			if (currentpoke == 1){
+				pok1.usehealthitem();
+			}
+			if (currentpoke == 2){
+				pok2.usehealthitem();
+			}
+			if (currentpoke == 3){
+				pok3.usehealthitem();
+			}
+			if (currentpoke == 4){
+				pok4.usehealthitem();
+			}
+			if (currentpoke == 5){
+				pok5.usehealthitem();
+			}
+		} else if (match3choice == 4){
+			if (currentpoke == 1){
+				if (pok1.specialattackchance() == true){
+					op3.hp = op3.hp - pok1.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op3.name << " strikes a regular attack!" <<endl;
+				pok1.hp = pok1.hp - op3.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				if (pok2.specialattackchance() == true){
+					op3.hp = op3.hp - pok2.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op3.name << " strikes a regular attack!" <<endl;
+				pok2.hp = pok2.hp - op3.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				if (pok3.specialattackchance() == true){
+					op3.hp = op3.hp - pok3.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op3.name << " strikes a regular attack!" <<endl;
+				pok3.hp = pok3.hp - op3.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				if (pok4.specialattackchance() == true){
+					op3.hp = op3.hp - pok4.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op3.name << " strikes a regular attack!" <<endl;
+				pok4.hp = pok4.hp - op3.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				if (pok5.specialattackchance() == true){
+					op3.hp = op3.hp - pok5.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op3.name << " strikes a regular attack!" <<endl;
+				pok5.hp = pok5.hp - op3.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match3choice == 5){
+			if (currentpoke == 1){
+				pok1.usemanaitem();
+			}
+			if (currentpoke == 2){
+				pok2.usemanaitem();
+			}
+			if (currentpoke == 3){
+				pok3.usemanaitem();
+			}
+			if (currentpoke == 4){
+				pok4.usemanaitem();
+			}
+			if (currentpoke == 5){
+				pok5.usemanaitem();
+			}
+		}
+		
+		if (pokeInventory[0] == pokeInventory[1] && pokeInventory[1] == pokeInventory[2] && pokeInventory[2] == pokeInventory[3] && pokeInventory[3] == pokeInventory[4]){
+			gameEnd = true;
+			cout << "All your Pokemons have been knocked out, you have lost this battle...";
+		}
+	}
+	
+	if (gameEnd == false){
+		cout <<endl;
+		cout << op3.name << " falls on the floor for forgiveness... The gym trainer is tensing up, but still pull out a new pokemon named " << op4.name <<endl <<endl;
+		
+		cout << "Match 4: " << pokeInventory[currentpoke-1] << " vs " << op4.name <<endl <<endl;
+	}
+	
+	int match4choice;
+	// match 4 same comments as match 1
+	while (op4.hp > 0 && gameEnd == false){
+		cout << "Your Pokemon Inventory: ";
+		for (int i=0; i<5; i++){
+			cout << pokeInventory[i] << ", ";
+		}
+		cout <<endl <<endl;
+		
+		if (pok1.hp == 1 && pok2.hp == 2 && pok3.hp == 3 && pok4.hp == 4 && pok5.hp <= 0){
+				pok1.hp = 1;
+				pok2.hp = 2;
+				pok3.hp = 3;
+				pok4.hp = 4;
+				pok5.hp = 5;
+				gameEnd = true;
+				cout << "All your Pokemons have been knocked out, you have lost this battle..." <<endl;
+		}
+		if (pok1.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok1.hp = 1;
+		}
+		if (pok2.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok2.hp = 2;
+		}
+		if (pok3.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok3.hp = 3;
+		}
+		if (pok4.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok4.hp = 4;
+		}
+		if (pok5.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok5.hp = 5;
+		}
+		
+		if (gameEnd == false){
+			if (currentpoke == 1){
+				pok1.statsprint();
+			} else if (currentpoke == 2){
+				pok2.statsprint();
+			} else if (currentpoke == 3){
+				pok3.statsprint();
+			} else if (currentpoke == 4){
+				pok4.statsprint();
+			} else if (currentpoke == 5){
+				pok5.statsprint();
+			}
+		}
+		
+		cout << op4.name << " Health: " << op4.hp <<endl;
+		
+		if (gameEnd == false){
+			cout << "Choose your action: 1-Attack | 2-Change Pokemon | 3-Use Health Item | 4-Special Attack | 5-Use Mana Item --> ";
+			cin >> match4choice;
+		}
+		cout <<endl;
+		
+		if (match4choice == 1){
+			if (currentpoke == 1){
+				op4.hp = op4.hp - pok1.attackDmg();
+				
+				cout << op4.name << " a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok1.hp = pok1.hp - op4.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				op4.hp = op4.hp - pok2.attackDmg();
+				
+				cout << op4.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok2.hp = pok2.hp - op4.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				op4.hp = op4.hp - pok3.attackDmg();
+				
+				cout << op4.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok3.hp = pok3.hp - op4.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				op4.hp = op4.hp - pok4.attackDmg();
+				
+				cout << op4.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok4.hp = pok4.hp - op4.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				op4.hp = op4.hp - pok5.attackDmg();
+				
+				cout << op4.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok5.hp = pok5.hp - op4.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match4choice == 2){
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+		} else if (match4choice == 3){
+			if (currentpoke == 1){
+				pok1.usehealthitem();
+			}
+			if (currentpoke == 2){
+				pok2.usehealthitem();
+			}
+			if (currentpoke == 3){
+				pok3.usehealthitem();
+			}
+			if (currentpoke == 4){
+				pok4.usehealthitem();
+			}
+			if (currentpoke == 5){
+				pok5.usehealthitem();
+			}
+		} else if (match4choice == 4){
+			if (currentpoke == 1){
+				if (pok1.specialattackchance() == true){
+					op4.hp = op4.hp - pok1.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op4.name << " strikes a regular attack!" <<endl;
+				pok1.hp = pok1.hp - op4.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				if (pok2.specialattackchance() == true){
+					op4.hp = op4.hp - pok2.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op4.name << " strikes a regular attack!" <<endl;
+				pok2.hp = pok2.hp - op4.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				if (pok3.specialattackchance() == true){
+					op4.hp = op4.hp - pok3.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op4.name << " strikes a regular attack!" <<endl;
+				pok3.hp = pok3.hp - op4.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				if (pok4.specialattackchance() == true){
+					op4.hp = op4.hp - pok4.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op4.name << " strikes a regular attack!" <<endl;
+				pok4.hp = pok4.hp - op4.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				if (pok5.specialattackchance() == true){
+					op4.hp = op4.hp - pok5.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op4.name << " strikes a regular attack!" <<endl;
+				pok5.hp = pok5.hp - op4.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match4choice == 5){
+			if (currentpoke == 1){
+				pok1.usemanaitem();
+			}
+			if (currentpoke == 2){
+				pok2.usemanaitem();
+			}
+			if (currentpoke == 3){
+				pok3.usemanaitem();
+			}
+			if (currentpoke == 4){
+				pok4.usemanaitem();
+			}
+			if (currentpoke == 5){
+				pok5.usemanaitem();
+			}
+		}
+	}
+	
+	if (gameEnd == false){
+		cout <<endl;
+		cout << op4.name << " returns to his trainer and faints... The gym trainer is extremely nervous, but still pulls his last pokemon, " << op5.name <<endl <<endl;
+		
+		cout << "Match 5: " << pokeInventory[currentpoke-1] << " vs " << op5.name <<endl <<endl;
+	}
+	
+	int match5choice;
+	// match 5 same comments as match 1
+	while (op5.hp > 0 && gameEnd == false){
+		cout << "Your Pokemon Inventory: ";
+		for (int i=0; i<5; i++){
+			cout << pokeInventory[i] << ", ";
+		}
+		cout <<endl <<endl;
+		//test
+		if (pok1.hp == 1 && pok2.hp == 2 && pok3.hp == 3 && pok4.hp == 4 && pok5.hp <= 0){	
+				pok1.hp = 1;
+				pok2.hp = 2;
+				pok3.hp = 3;
+				pok4.hp = 4;
+				pok5.hp = 5;
+				gameEnd = true;
+				cout << "All your Pokemons have been knocked out, you have lost this battle..." <<endl;
+		}
+		if (pok1.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok1.hp = 1;
+		}
+		if (pok2.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok2.hp = 2;
+		}
+		if (pok3.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok3.hp = 3;
+		}
+		if (pok4.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok4.hp = 4;
+		}
+		if (pok5.hp <= 0){
+			// end the game if all pokemons are dead
+			cout << pokeInventory[currentpoke-1] << " has been knocked out! Change Pokemons quick!";
+			pokeInventory[currentpoke-1] = "Knocked Out";
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+			pok5.hp = 5;
+		}
+		
+		if (gameEnd == false){
+			if (currentpoke == 1){
+				pok1.statsprint();
+			} else if (currentpoke == 2){
+				pok2.statsprint();
+			} else if (currentpoke == 3){
+				pok3.statsprint();
+			} else if (currentpoke == 4){
+				pok4.statsprint();
+			} else if (currentpoke == 5){
+				pok5.statsprint();
+			}
+		}
+		
+		cout << op5.name << " Health: " << op5.hp <<endl;
+		
+		if (gameEnd == false){
+			cout << "Choose your action: 1-Attack | 2-Change Pokemon | 3-Use Health Item | 4-Special Attack | 5-Use Mana Item --> ";
+			cin >> match5choice;
+		}
+		cout <<endl;
+		
+		if (match5choice == 1){
+			if (currentpoke == 1){
+				op5.hp = op5.hp - pok1.attackDmg();
+				
+				cout << op5.name << " a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok1.hp = pok1.hp - op5.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				op5.hp = op5.hp - pok2.attackDmg();
+				
+				cout << op5.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok2.hp = pok2.hp - op5.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				op5.hp = op5.hp - pok3.attackDmg();
+				
+				cout << op5.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok3.hp = pok3.hp - op5.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				op5.hp = op5.hp - pok4.attackDmg();
+				
+				cout << op5.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok4.hp = pok4.hp - op5.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				op5.hp = op5.hp - pok5.attackDmg();
+				
+				cout << op5.name << " takes a hit from " << pokeInventory[currentpoke-1] << " and strikes back." <<endl;
+				pok5.hp = pok5.hp - op5.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match5choice == 2){
+			currentpoke = changePoke(pokeInventory[currentpoke-1], pokeInventory);
+		} else if (match5choice == 3){
+			if (currentpoke == 1){
+				pok1.usehealthitem();
+			}
+			if (currentpoke == 2){
+				pok2.usehealthitem();
+			}
+			if (currentpoke == 3){
+				pok3.usehealthitem();
+			}
+			if (currentpoke == 4){
+				pok4.usehealthitem();
+			}
+			if (currentpoke == 5){
+				pok5.usehealthitem();
+			}
+		} else if (match5choice == 4){
+			if (currentpoke == 1){
+				if (pok1.specialattackchance() == true){
+					op5.hp = op5.hp - pok1.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op5.name << " strikes a regular attack!" <<endl;
+				pok1.hp = pok1.hp - op5.attackDmg();
+				if (pok1.hp <= 0){
+					pok1.hp = 1;
+				}
+			}
+			if (currentpoke == 2){
+				if (pok2.specialattackchance() == true){
+					op5.hp = op5.hp - pok2.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op5.name << " strikes a regular attack!" <<endl;
+				pok2.hp = pok2.hp - op5.attackDmg();
+				if (pok2.hp <= 0){
+					pok2.hp = 2;
+				}
+			}
+			if (currentpoke == 3){
+				if (pok3.specialattackchance() == true){
+					op5.hp = op5.hp - pok3.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op5.name << " strikes a regular attack!" <<endl;
+				pok3.hp = pok3.hp - op5.attackDmg();
+				if (pok3.hp <= 0){
+					pok3.hp = 3;
+				}
+			}
+			if (currentpoke == 4){
+				if (pok4.specialattackchance() == true){
+					op5.hp = op5.hp - pok4.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op5.name << " strikes a regular attack!" <<endl;
+				pok4.hp = pok4.hp - op5.attackDmg();
+				if (pok4.hp <= 0){
+					pok4.hp = 4;
+				}
+			}
+			if (currentpoke == 5){
+				if (pok5.specialattackchance() == true){
+					op5.hp = op5.hp - pok5.specialattack();
+				}
+				
+				cout << "Your chances of getting a citical - 1/10" <<endl;
+				cout << op5.name << " strikes a regular attack!" <<endl;
+				pok5.hp = pok5.hp - op5.attackDmg();
+				if (pok5.hp <= 0){
+					pok5.hp = 5;
+				}
+			}
+		} else if (match5choice == 5){
+			if (currentpoke == 1){
+				pok1.usemanaitem();
+			}
+			if (currentpoke == 2){
+				pok2.usemanaitem();
+			}
+			if (currentpoke == 3){
+				pok3.usemanaitem();
+			}
+			if (currentpoke == 4){
+				pok4.usemanaitem();
+			}
+			if (currentpoke == 5){
+				pok5.usemanaitem();
+			}
+		}
+	}
+	
+	if (gameEnd == false){
+		// ending congratulations for the player on what they accomplished
+		cout <<endl;
+		cout << "Congratulations! You have defeated all pokemons on the gym trainer and have won the whole battle! You have won a Pokemon badge of honor and you have earned $1,000,000 dollars for winning this prestigious battle.";
+	}
+}
